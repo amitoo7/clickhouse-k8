@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.24.0 (4a2a0458)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: query-service
+  name: query-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: query-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.24.0 (4a2a0458)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: query-service
+    spec:
+      containers:
+        - args:
+            - -config=/root/config/prometheus.yml
+          env:
+            - name: ClickHouseUrl
+              value: tcp://clickhouse:9000
+            - name: GODEBUG
+              value: netdns=go
+            - name: POSTHOG_API_KEY
+              value: H-htDCae7CR3RV57gUzmol6IAKtm5IMCvbcm_fwnL-w
+            - name: STORAGE
+              value: clickhouse
+          image: signoz/query-service:0.5.0
+          name: query-service
+          ports:
+            - containerPort: 8080
+          resources: {}
+          volumeMounts:
+            - mountPath: /root/config/prometheus.yml
+              name: query-service-claim0
+            - mountPath: /root/config/dashboards
+              name: query-service-claim1
+            - mountPath: /var/lib/signoz/
+              name: query-service-claim2
+      restartPolicy: Always
+      volumes:
+        - name: query-service-claim0
+          persistentVolumeClaim:
+            claimName: query-service-claim0
+        - name: query-service-claim1
+          persistentVolumeClaim:
+            claimName: query-service-claim1
+        - name: query-service-claim2
+          persistentVolumeClaim:
+            claimName: query-service-claim2
+status: {}

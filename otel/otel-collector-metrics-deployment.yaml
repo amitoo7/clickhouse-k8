@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.24.0 (4a2a0458)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: otel-collector-metrics
+  name: otel-collector-metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: otel-collector-metrics
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.24.0 (4a2a0458)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: otel-collector-metrics
+    spec:
+      containers:
+        - args:
+            - --config=/etc/otel-collector-metrics-config.yaml
+            - --mem-ballast-size-mib=683
+          image: signoz/otelcontribcol:0.4.2
+          name: otel-collector-metrics
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/otel-collector-metrics-config.yaml
+              name: otel-collector-metrics-claim0
+      restartPolicy: Always
+      volumes:
+        - name: otel-collector-metrics-claim0
+          persistentVolumeClaim:
+            claimName: otel-collector-metrics-claim0
+status: {}

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.24.0 (4a2a0458)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: load-hotrod
+  name: load-hotrod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: load-hotrod
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.24.0 (4a2a0458)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: load-hotrod
+    spec:
+      containers:
+        - env:
+            - name: ATTACKED_HOST
+              value: http://hotrod:8080
+            - name: LOCUST_MODE
+              value: standalone
+            - name: LOCUST_OPTS
+              value: --headless -u 10 -r 1
+            - name: NO_PROXY
+              value: standalone
+            - name: QUIET_MODE
+              value: QUIET_MODE:false
+            - name: TASK_DELAY_FROM
+              value: "5"
+            - name: TASK_DELAY_TO
+              value: "30"
+          image: grubykarol/locust:1.2.3-python3.9-alpine3.12
+          name: load-hotrod
+          ports:
+            - containerPort: 8089
+          resources: {}
+          volumeMounts:
+            - mountPath: /locust
+              name: load-hotrod-claim0
+      hostname: load-hotrod
+      restartPolicy: Always
+      volumes:
+        - name: load-hotrod-claim0
+          persistentVolumeClaim:
+            claimName: load-hotrod-claim0
+status: {}
